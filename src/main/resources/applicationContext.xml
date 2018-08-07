@@ -45,9 +45,9 @@
     <bean id="filmService" class="com.hand.api.service.Impl.FilmServiceImpl" >
         <property name="filmMapper" ref="filmMapper" />
     </bean>
-    <bean id="fileNotice" class="com.hand.infra.aop.FilmNotice" />
+    <bean id="fileEvent" class="com.hand.infra.aop.FilmEvent" />
     <aop:config>
-       <aop:aspect ref="fileNotice">
+       <aop:aspect ref="fileEvent">
            <aop:pointcut id="point1"
                          expression="execution(* com.hand.api.service.Impl.FilmServiceImpl.*(..))" />
            <aop:before method="BeforeInsertFilmEvent" pointcut-ref="point1"/>

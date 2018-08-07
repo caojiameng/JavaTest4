@@ -12,10 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 import sun.nio.ch.FileLockImpl;
 
-/**
- * Hello world!
- *
- */
+
 public class Application
 {
     public static void main( String[] args )  {
@@ -28,9 +25,7 @@ public class Application
         String title = System.getenv("TITLE");
         String description = System.getenv("DESCRIPTION");
         Integer languageId = Integer.valueOf(System.getenv("LANGUAGE_ID"));
-/*        String title = "Film one";
-        String description = "nothing new";
-        Integer languageId = 1;*/
+
 
 
         Film film = new Film();
@@ -54,7 +49,7 @@ public class Application
         TransactionStatus status = txManager.getTransaction(def);
         try {
             filmService.insertFilm(film);
-            throw new Exception("测试一下异常");
+            throw new Exception("Test");
         }
         catch (Exception ex) {
             txManager.rollback(status);
@@ -73,6 +68,6 @@ public class Application
         txManager.commit(status2);
         System.out.println("Context stop");
 
-        //System.out.println(System.getenv("MYSQL_IP"));
+
     }
 }
