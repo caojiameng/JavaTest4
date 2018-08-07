@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:tx="http://www.springframework.org/schema/tx" xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
+    <!-- 引入属性文件 -->
+    <context:property-placeholder
+            ignore-resource-not-found="true"
+            location="classpath:db.properties" />
+
+    <tx:annotation-driven transaction-manager="transactionManager" />
+
+    <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource">
+        <property name="driverClassName" value="${datasource.driver}" />
+        <property name="url" value="jdbc:mysql://${MYSQL_IP}:${MYSQL_PORT}/${database.name}" />
+        <property name="username" value="${MYSQL_USERNAME}" />
+        <property name="password" value="${MYSQL_PASSWORD}" />
+
+        <!--<property name="url" value="${datasource.url}" />
+        <property name="username" value="${datasource.username}" />
+        <property name="password" value="${datasource.password}" />-->
+        <!-- druid 连接池的 -->
+        <property name="filters" value="stat" />
+
+        <!-- 下面druid 和 dbcp 连接池通用的 ↓↓↓↓↓↓↓↓↓↓↓↓ -->
+        <!--maxActive: 最大连接数量 -->
+        <property name="maxActive" value="20" />
+        <!--initialSize: 初始化连接 -->
+        <property name="initialSize" value="5" />
+    </bean>
+
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="configLocation" value="applicationContext-mybatis.xml" />        <property name="dataSource" ref="dataSource" />
+    </bean>
+
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="com.hand.infra.mapper" />
+    </bean>
+
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource" />
+    </bean>
+
+    <bean id="filmService" class="com.hand.api.service.Impl.FilmServiceImpl" >
+        <property name="filmMapper" ref="filmMapper" />
+    </bean>
+    <bean id="fileNotice" class="com.hand.infra.aop.FilmNotice" />
+    <aop:config>
+       <aop:aspect ref="fileNotice">
+           <aop:pointcut id="point1"
+                         expression="execution(* com.hand.api.service.Impl.FilmServiceImpl.*(..))" />
+           <aop:before method="BeforeInsertFilmEvent" pointcut-ref="point1"/>
+           <aop:after method="AfterInsertFilmEvent" pointcut-ref="point1" />
+       </aop:aspect>
+   </aop:config>
+</beans>
